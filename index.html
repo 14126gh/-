@@ -1,0 +1,966 @@
+﻿<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<link rel="manifest" href="manifest.json">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="theme-color" content="#0a7bdc">
+<title>فرم بازرسی - Inspector (افلاین)</title>
+
+
+
+<script>
+  // ثبت ساده Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(registration => {
+          console.log('✅ Service Worker ثبت شد');
+        })
+        .catch(error => {
+          console.error('❌ خطا:', error);
+        });
+    });
+  }
+
+  // فقط نمایش وضعیت در کنسول - بدون خطا
+  window.addEventListener('offline', () => {
+    console.log('📱 برنامه در حالت آفلاین اجرا می‌شود');
+    // یک نشان‌گر ساده اضافه کن
+    document.documentElement.style.border = '3px solid green';
+  });
+  
+  window.addEventListener('online', () => {
+    console.log('🌐 برنامه آنلاین است');
+    document.documentElement.style.border = 'none';
+  });
+
+  // وضعیت اولیه
+  if (!navigator.onLine) {
+    console.log('📱 برنامه در حالت آفلاین شروع شد');
+    document.documentElement.style.border = '3px solid green';
+  }
+</script>
+
+
+
+
+
+
+
+
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>فرم بازرسی - Inspector (ویرایش)</title>
+<style>
+  :root{--primary:#0a7bdc;--bg:#f3f6fb}
+  html,body{height:100%;margin:0}
+  body{
+    font-family:system-ui,Arial,Helvetica,sans-serif;
+    margin:0;padding:12px;background:var(--bg);color:#102030;
+    -webkit-font-smoothing:antialiased;
+  }
+  .card{
+    background:#fff;border-radius:12px;padding:12px;margin-bottom:12px;
+    box-shadow:0 6px 14px rgba(8,34,63,0.06);
+  }
+  h1{margin:0 0 8px;font-size:20px}
+  label{display:block;margin:8px 0 6px;font-weight:700}
+  input,select,button,textarea{
+    width:100%;padding:12px;border-radius:10px;border:1px solid #d7e0ee;font-size:16px;
+    box-sizing:border-box;background:#fff;
+  }
+  button{
+    background:var(--primary);color:#fff;border:none;padding:12px;font-weight:800;border-radius:10px;
+  }
+  .muted{color:#5b7288;font-size:14px}
+  .small-header{
+    position:sticky;top:0;background:#fff;padding:8px;border-bottom:1px solid #eef3fb;
+    z-index:20;border-radius:0;display:flex;align-items:center;gap:8px;
+  }
+  .pill{display:inline-block;background:#eef7ff;color:#0a5ea4;padding:6px 10px;border-radius:999px;font-weight:700}
+  .check-item{
+    background:#fff;margin:8px 0;padding:14px;border-radius:10px;border:1px solid #eef3fb;
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .ci-opts{display:flex;gap:10px;margin-top:6px}
+  .ci-opts label{
+    flex:1;display:flex;align-items:center;justify-content:center;padding:12px;border-radius:8px;
+    background:#f6f9ff;border:1px solid #e6eefb;font-weight:700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .ci-opts label.selected {
+    background: #e1f0ff;
+    border-color: #0a7bdc;
+    box-shadow: 0 0 0 2px rgba(10, 123, 220, 0.2);
+  }
+  .ci-opts label.ok.selected {
+    background: #e8f5e8;
+    border-color: #4caf50;
+  }
+  .ci-opts label.notok.selected {
+    background: #ffebee;
+    border-color: #f44336;
+  }
+  input[type="radio"]{display:none}
+  .nav{display:flex;gap:10px;margin-top:12px}
+  .nav button{flex:1;padding:12px}
+  .small-ghost{background:#eef2f8;color:#0b3b66;border:1px solid #d7e6fb}
+  .toolbar{display:flex;gap:3px;align-items:center}
+  #checklistContainer{min-height:200px; max-height:85vh; overflow:auto; padding:6px;}
+  .location-status {
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: #f5f5f5;
+  }
+  .location-status.active {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+  .location-status.inactive {
+    background: #ffebee;
+    color: #d32f2f;
+  }
+  button:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+  }
+  @media (min-height:700px){
+    .card{padding:10px}
+    .check-item{padding:10px}
+    input,select,button,textarea{padding:14px;font-size:17px}
+  }
+  /* استایل برای مودال */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  .modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .modal-buttons button {
+    flex: 1;
+    padding: 10px;
+  }
+  .gps-warning {
+    background: #fff3e0;
+    border: 1px solid #ffb74d;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 10px 0;
+    text-align: center;
+    color: #e65100;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<!-- صفحه اول -->
+<div id="page1" class="card">
+  <h1>📋 فرم بازرسی</h1>
+  <label for="personnelId">شماره پرسنلی</label>
+  <input id="personnelId" inputmode="numeric" placeholder="مثلاً 12001" autocomplete="off">
+  <div class="muted">نام اپراتور: <strong id="personnelName">---</strong></div>
+
+  <label for="equipmentSelect">انتخاب تجهیز</label>
+  <select id="equipmentSelect"></select>
+
+  <div style="height:10px"></div>
+  <button id="startBtn">شروع بازرسی</button>
+</div>
+
+<!-- صفحه دوم -->
+<div id="page2" style="display:none">
+  <div class="small-header" id="fixedHeader">
+    <div class="pill" id="headerEquipment">-</div>
+    <div style="flex:1">
+      <div id="headerComponent" style="font-weight:600">-</div>
+    </div>
+    <div class="toolbar">
+      <button id="newFormBtn" class="small-ghost" title="ذخیره و ایجاد فرم جدید">فرم جدید</button>
+    </div>
+  
+    <select id="componentSelectPage2"></select>
+  </div>
+
+  <div class="card">
+    <h2 id="componentTitle" style="margin-top:.5px;font-size:.5px">---</h2>
+
+    <!-- کانتینر آیتم‌ها با فضای نمایش بزرگ‌تر -->
+    <div id="checklistContainer"></div>
+
+    <div class="nav">
+      <button id="prevBtn" class="small-ghost">⬅ برگشت</button>
+      <button id="nextBtn">ادامه ➡</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="gpsWarning" class="gps-warning" style="display: none;">
+      ⚠ دسترسی به موقعیت‌یابی ضروری است. لطفاً GPS دستگاه خود را فعال کنید و مجوز دسترسی را بدهید.
+    </div>
+    <div style="height:8px"></div>
+    <div style="display:flex;gap:8px">
+      <button id="saveBtn" style="flex:1">📥 ثبت نهایی و ذخیره</button>
+      <button id="resetBtn" class="small-ghost" style="flex:1;display:none">پاک کردن فرم</button>
+    </div>
+    <div class="location-status" id="locationStatus">موقعیت‌یابی: در حال دریافت...</div>
+  </div>
+</div>
+
+<!-- مودال بازیابی وضعیت -->
+<div id="restoreModal" class="modal">
+  <div class="modal-content">
+    <h3>بازگشت به فرم ناتمام</h3>
+    <p>یک فرم بازرسی ذخیره شده پیدا شد. آیا می‌خواهید از جایی که قبلاً کار کرده‌اید ادامه دهید یا فرم جدیدی ایجاد کنید؟</p>
+    <div class="modal-buttons">
+      <button id="restoreContinueBtn" class="small-ghost">ادامه فرم قبلی</button>
+      <button id="restoreNewBtn">شروع فرم جدید</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== داده‌های نمونه ===== */
+const operators = {"12026": "افشار رابري حسن", "12077": "خليفهّ مصطفي", "12144": "شيباني تذرجي رضا",
+ "12227": "مرادي پور شهرام", "12536": "بلوردي جواد", "12959": "دره گرائي روح الله",
+ "12963": "نصرت آبادي سجاد", "12997": "صادقي گوغري ابراهيم", "13079": "قرايي احمد",
+ "13104": "نوروزي كورگاهي اميررضا", "13202": "نژادحيدري محمد", "13231": "حافظي قهستاني اميرحسين",
+ "14126": "شاهبداغي ابوالقاسم"
+};
+const equipmentData = {
+"---انتخاب کنید---":[],
+"G7-102":["درام تیل:","شوت ورودی:","نوار:","غلطک ها:","درام بندینگ تیل:","درام بندینگ هد:","درام تنشن:","کانترویت:","شوت خروجی:","درام هد:","موتور:","کوپلینگ موتور:","گیربکس:","5S:"],
+"G7-103":["درام تیل:","شوت ورودی:","نوار:","غلطک ها:","درام بندینگ تیل:","درام بندینگ هد:","درام تنشن:","کانترویت:","شوت خروجی:","درام هد:","موتور:","کوپلینگ موتور:","گیربکس:","5S:"],
+"G7-104/1":["درام تیل:","شوت ورودی:","نوار:","غلطک ها:","درام بندینگ تیل:","درام بندینگ هد:","درام تنشن:","کانترویت:","شوت خروجی:","درام هد:","موتور:","کوپلینگ موتور:","گیربکس:","5S:"],
+"G7-104/2":["درام تیل:","شوت ورودی:","نوار:","غلطک ها:","درام بندینگ تیل:","درام بندینگ هد:","درام تنشن:","کانترویت:","شوت خروجی:","درام هد:","موتور:","کوپلینگ موتور:","گیربکس:","5S:"],
+"G7-105":["درام تیل:","شوت ورودی:","نوار:","غلطک ها:","درام بندینگ تیل:","درام بندینگ هد:","درام تنشن:","کانترویت:","شوت خروجی:","درام هد:","موتور:","کوپلینگ موتور:","گیربکس:","5S:"],
+"G7-106":["درام تیل:","شوت ورودی:","نوار:","غلطک ها:","درام بندینگ تیل:","درام بندینگ هد:","درام تنشن:","کانترویت:","شوت خروجی:","درام هد:","موتور:","کوپلینگ موتور:","گیربکس:","5S:"],
+"G7-107":["درام تیل:","درام اسنپ تیل:","شوت ورودی:","نوار:","غلطک ها:","درام تخلیه:","درام بندینگ بالا:","درام بندینگ تیل:","درام بندینگ هد:","درام تنشن:","کانترویت:","شوت خروجی:","درام هد:","موتور:","کوپلینگ موتور:","گیربکس:","5S:"],
+"G7-209":["درام تیل:","شوت ورودی:","نوار:","غلطک ها:","درام بندینگ تیل:","درام بندینگ هد:","درام تنشن:","کانترویت:","شوت خروجی:","درام هد:","موتور:","کوپلینگ موتور:","گیربکس:","5S:"],
+"G7-210":["درام تیل:","شوت ورودی:","نوار:","غلطک ها:","درام بندینگ تیل:","درام بندینگ هد:","درام تنشن:","کانترویت:","شوت خروجی:","درام هد:","موتور:","کوپلینگ موتور:","گیربکس:","5S:"],
+"G7-211":["درام تیل:","شوت ورودی:","نوار:","غلطک ها:","درام بندینگ تیل:","درام بندینگ هد:","درام تنشن:","کانترویت:","شوت خروجی:","درام هد:","موتور:","کوپلینگ موتور:","گیربکس:","5S:"],
+"G7-212":["درام تیل:","شوت ورودی:","نوار:","غلطک ها:","درام بندینگ تیل:","درام بندینگ هد:","درام تنشن:","کانترویت:","شوت خروجی:","درام هد:","موتور:","کوپلینگ موتور:","گیربکس:","5S:"],
+"G7-213":["درام تیل:","درام اسنپ تیل:","شوت ورودی:","نوار:","غلطک ها:","درام تخلیه:","درام بندینگ بالا:","درام بندینگ پایین:","کانترویت:","شوت خروجی:","درام هد:","موتور:","کوپلینگ موتور:","گیربکس:","5S:"],
+"G7-214":["درام تیل:","درام اسنپ تیل:","شوت ورودی:","نوار:","غلطک ها:","درام تخلیه:","درام بندینگ بالا:","درام بندینگ پایین:","کانترویت:","شوت خروجی:","درام هد:","موتور:","کوپلینگ موتور:","گیربکس:","5S:"],
+"G7-215":["درام تیل:","شوت ورودی:","نوار:","غلطک ها:","درام بندینگ تیل:","درام بندینگ هد:","درام تنشن:","کانترویت:","شوت خروجی:","درام هد:","موتور:","کوپلینگ موتور:","گیربکس:","5S:"],
+"G7-216":["درام تیل:","شوت ورودی:","نوار:","غلطک ها:","درام بندینگ تیل:","درام بندینگ هد:","درام تنشن:","کانترویت:","شوت خروجی:","درام هد:","موتور:","کوپلینگ موتور:","گیربکس:","5S:"],
+"G7-220A":["درام تیل:","شوت ورودی:","نوار:","غلطک ها:","درام بندینگ تیل:","درام بندینگ هد:","درام تنشن:","کانترویت:","شوت خروجی:","درام هد:","موتور:","کوپلینگ موتور:","گیربکس:","5S:"],
+"G7-220B":["درام تیل:","شوت ورودی:","نوار:","غلطک ها:","درام بندینگ تیل:","درام بندینگ هد:","درام تنشن:","کانترویت:","شوت خروجی:","درام هد:","موتور:","کوپلینگ موتور:","گیربکس:","5S:"],
+
+};
+
+const checklistItems = {
+"درام تیل:":["وضعیت سگمنت","وضعیت شکستگی درام و تنشن الایمنت","وضعیت شفت","دمای پیلوبلاک","کوبش و صدا  پیلوبلاک","وضعیت سیل ها و نشت گریس","وضعیت کلینر قابلمه ای","عملکرد سنسور اسپید"],
+"درام اسنپ تیل:":["وضعیت سگمنت","وضعیت شکستگی درام و تنشن الایمنت","وضعیت شفت","دمای پیلوبلاک","کوبش و صدا  پیلوبلاک","وضعیت سیل ها و نشت گریس"],
+"شوت ورودی:":["وضعیت اتصالات شوت","سوراخ بودن  یا نشت","وضعیت رابر اسکیت برد و کلمپ ها","هلای پشت شوت","وضعیت سنت ریختن بار","وضعیت سیستم دایورتر"],
+"نوار:":["اتصال (اسپلایس-اسکرو)","پارگی ،زدگی ، ترک","انحراف","عملکرد سنسور دریفت"],
+"غلطک ها:":["دیسکی","پاره","در آستانه خرابی"],
+"درام تخلیه:":["وضعیت سگمنت","وضعیت شکستگی درام و تنشن الایمنت","وضعیت شفت","دمای پیلوبلاک","کوبش و صدا  پیلوبلاک","وضعیت سیل ها و نشت گریس"],
+"درام بندینگ بالا:":["وضعیت سگمنت","وضعیت شکستگی درام و تنشن الایمنت","وضعیت شفت","دمای پیلوبلاک","کوبش و صدا  پیلوبلاک","وضعیت سیل ها و نشت گریس"],
+"درام بندینگ پایین:":["وضعیت سگمنت","وضعیت شکستگی درام و تنشن الایمنت","وضعیت شفت","دمای پیلوبلاک","کوبش و صدا  پیلوبلاک","وضعیت سیل ها و نشت گریس"],
+"درام بندینگ تیل:":["وضعیت سگمنت","وضعیت شکستگی درام و تنشن الایمنت","وضعیت شفت","دمای پیلوبلاک","کوبش و صدا  پیلوبلاک","وضعیت سیل ها و نشت گریس","وضعیت کلینر قابلمه ای","عملکرد سنسور اسپید"],
+"درام بندینگ هد:":["وضعیت سگمنت","وضعیت شکستگی درام و تنشن الایمنت","وضعیت شفت","دمای پیلوبلاک","کوبش و صدا  پیلوبلاک","وضعیت سیل ها و نشت گریس","عملکرد سنسور اسپید"],
+"درام تنشن:":["وضعیت سگمنت","وضعیت شکستگی درام و تنشن الایمنت","وضعیت شفت","دمای پیلوبلاک","کوبش و صدا  پیلوبلاک","وضعیت سیل ها و نشت گریس","عملکرد سنسور  دریفت"],
+"کانترویت:":["وضعیت سیم بکسل","وضعیت ستون های هدایت","وضعیت شاخک ها","وضعیت هشتی","نظافت"],
+"شوت خروجی:":["اتصالات شوت","سوراخ بودن  یا نشت","وضعیت رابر اسکیت برد و کلمپ ها","هلای پشت شوت","وضعیت سنت ریختن بار","وضعیت سیستم دایورتر","وضعیت اسکراپر","سایش (درام هد با بدنه شوت)"],
+"درام اسنپ هد:":["وضعیت سگمنت","وضعیت شکستگی درام و تنشن الایمنت","وضعیت شفت","دمای پیلوبلاک","کوبش و صدا  پیلوبلاک","وضعیت سیل ها و نشت گریس"],
+"درام هد:":["وضعیت سگمنت","وضعیت شکستگی درام و تنشن الایمنت","وضعیت شفت","دمای پیلوبلاک","کوبش و صدا  پیلوبلاک","وضعیت سیل ها و نشت گریس"],
+"موتور:":["دما","ارتعاش","صدا","اتصال به شاسی","نظافت"],
+"کوپلینگ موتور:":["صدا","دما","روانکاری","وضعیت حفاظ"],
+"گیربکس:":["دما","ارتعاش","صدا","وضعیت اتصال","سطح و نشت روغن","ایربرسر","شیرینگ دیسک","وضعیت کوپلینگ به  درام"],
+"5S:":["نظافت محیط","ضایعات","موارد برق و ابزار دقیق","موارد ایمنی",]
+};
+
+/* ===== حالت و المان‌ها ===== */
+let currentEquipment="", currentComponents=[], currentIndex=0;
+let allComponentsData=[], itemMeta={};
+let currentLocation = null;
+let geolocationWatchId = null;
+let gpsAccessGranted = false;
+
+const elId = document.getElementById('personnelId');
+const elName = document.getElementById('personnelName');
+const selEquip = document.getElementById('equipmentSelect');
+const page1 = document.getElementById('page1');
+const page2 = document.getElementById('page2');
+const selCompPage2 = document.getElementById('componentSelectPage2');
+const headerEquipment = document.getElementById('headerEquipment');
+const headerComponent = document.getElementById('headerComponent');
+const componentTitle = document.getElementById('componentTitle');
+const container = document.getElementById('checklistContainer');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const saveBtn = document.getElementById('saveBtn');
+const startBtn = document.getElementById('startBtn');
+const newFormBtn = document.getElementById('newFormBtn');
+const restoreModal = document.getElementById('restoreModal');
+const restoreContinueBtn = document.getElementById('restoreContinueBtn');
+const restoreNewBtn = document.getElementById('restoreNewBtn');
+const locationStatus = document.getElementById('locationStatus');
+const gpsWarning = document.getElementById('gpsWarning');
+
+/* ===== توابع کمکی ===== */
+function toEnglishDigits(str){ if(!str) return ""; return String(str).replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/\s/g,'').replace(/[^0-9]/g,''); }
+function nowFa(){ const d=new Date(); return d.toLocaleDateString('fa-IR')+' '+d.toLocaleTimeString('fa-IR'); }
+function ensureArrayLen(len){ allComponentsData = Array(len).fill(null); }
+
+/* ===== بررسی دسترسی موقعیت‌یابی ===== */
+function checkGeolocationPermission() {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      resolve(false);
+      return;
+    }
+    
+    navigator.permissions.query({ name: 'geolocation' })
+      .then((result) => {
+        if (result.state === 'granted') {
+          resolve(true);
+        } else if (result.state === 'prompt') {
+          // اگر هنوز درخواست نشده، موقعیت‌یابی می‌کنیم تا درخواست شود
+          navigator.geolocation.getCurrentPosition(
+            () => resolve(true),
+            () => resolve(false),
+            { timeout: 5000 }
+          );
+        } else {
+          resolve(false);
+        }
+      })
+      .catch(() => resolve(false));
+  });
+}
+
+/* ===== غیرفعال کردن دکمه‌های فرم ===== */
+function disableFormActions() {
+  const activeButtons = [nextBtn, prevBtn, saveBtn, newFormBtn];
+  activeButtons.forEach(btn => {
+    if (btn) {
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      btn.style.cursor = 'not-allowed';
+    }
+  });
+  gpsWarning.style.display = 'block';
+  locationStatus.classList.remove('active');
+  locationStatus.classList.add('inactive');
+  gpsAccessGranted = false;
+}
+
+/* ===== فعال کردن دکمه‌های فرم ===== */
+function enableFormActions() {
+  const activeButtons = [nextBtn, prevBtn, saveBtn, newFormBtn];
+  activeButtons.forEach(btn => {
+    if (btn) {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+    }
+  });
+  gpsWarning.style.display = 'none';
+  locationStatus.classList.remove('inactive');
+  locationStatus.classList.add('active');
+  gpsAccessGranted = true;
+}
+
+/* ===== نظارت بر موقعیت‌یابی ===== */
+function startGeolocationMonitoring() {
+  if (geolocationWatchId) {
+    navigator.geolocation.clearWatch(geolocationWatchId);
+  }
+  
+  geolocationWatchId = navigator.geolocation.watchPosition(
+    function(position) {
+      currentLocation = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+        accuracy: position.coords.accuracy,
+        timestamp: new Date().toISOString()
+      };
+      locationStatus.textContent = `موقعیت‌یابی: فعال (دقت: ${Math.round(currentLocation.accuracy)} متر)`;
+      enableFormActions();
+    },
+    function(error) {
+      let errorMessage = "موقعیت‌یابی: غیرفعال - ";
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          errorMessage += "دسترسی رد شد. لطفا GPS را فعال کنید و مجوز موقعیت‌یابی را بدهید.";
+          break;
+        case error.POSITION_UNAVAILABLE:
+          errorMessage += "اطلاعات موقعیت در دسترس نیست. GPS را بررسی کنید.";
+          break;
+        case error.TIMEOUT:
+          errorMessage += "زمان درخواست موقعیت به پایان رسید.";
+          break;
+        default:
+          errorMessage += "خطای ناشناخته";
+          break;
+      }
+      locationStatus.textContent = errorMessage;
+      disableFormActions();
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 30000
+    }
+  );
+}
+
+/* ===== دریافت موقعیت جغرافیایی ===== */
+function getLocation() {
+  return new Promise((resolve) => {
+    locationStatus.textContent = "موقعیت‌یابی: در حال دریافت...";
+    
+    if (!navigator.geolocation) {
+      locationStatus.textContent = "موقعیت‌یابی: مرورگر شما از این قابلیت پشتیبانی نمی‌کند";
+      disableFormActions();
+      resolve(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        currentLocation = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+          timestamp: new Date().toISOString()
+        };
+        locationStatus.textContent = `موقعیت‌یابی: موفق (دقت: ${Math.round(currentLocation.accuracy)} متر)`;
+        enableFormActions();
+        resolve(true);
+      },
+      function(error) {
+        let errorMessage = "موقعیت‌یابی: ناموفق - ";
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage += "دسترسی رد شد. لطفا GPS را فعال کنید.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage += "اطلاعات موقعیت در دسترس نیست.";
+            break;
+          case error.TIMEOUT:
+            errorMessage += "زمان درخواست موقعیت به پایان رسید.";
+            break;
+          default:
+            errorMessage += "خطای ناشناخته";
+            break;
+        }
+        locationStatus.textContent = errorMessage;
+        disableFormActions();
+        resolve(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
+      }
+    );
+  });
+}
+
+/* ===== ذخیره و بازیابی وضعیت از localStorage ===== */
+function saveStateToLocalStorage() {
+  const state = {
+    personnelId: elId.value,
+    equipment: currentEquipment,
+    currentIndex: currentIndex,
+    allComponentsData: allComponentsData,
+    itemMeta: itemMeta,
+    timestamp: new Date().getTime()
+  };
+  localStorage.setItem('inspectorFormState', JSON.stringify(state));
+}
+
+function loadStateFromLocalStorage() {
+  const stateStr = localStorage.getItem('inspectorFormState');
+  if (stateStr) {
+    return JSON.parse(stateStr);
+  }
+  return null;
+}
+
+function clearStateFromLocalStorage() {
+  localStorage.removeItem('inspectorFormState');
+}
+
+function checkForSavedState() {
+  const savedState = loadStateFromLocalStorage();
+  if (savedState && savedState.personnelId && savedState.equipment) {
+    // بررسی زمان - اگر بیش از 24 ساعت گذشته باشد، وضعیت ذخیره شده را نادیده بگیر
+    const now = new Date().getTime();
+    const timeDiff = now - savedState.timestamp;
+    const hoursDiff = timeDiff / (1000 * 60 * 60);
+    
+    if (hoursDiff < 24) {
+      return savedState;
+    } else {
+      clearStateFromLocalStorage();
+    }
+  }
+  return null;
+}
+
+/* ===== پر کردن لیست تجهیزات ===== */
+(function fillEquip(){
+  selEquip.innerHTML='';
+  Object.keys(equipmentData).forEach(k=>{
+    const o=document.createElement('option'); o.value=k; o.textContent=k; selEquip.appendChild(o);
+  });
+})();
+
+/* ===== نام اپراتور ===== */
+elId.addEventListener('input', ()=>{ 
+  const id=toEnglishDigits(elId.value); 
+  elName.textContent = operators[id] || '---'; 
+  // ذخیره وضعیت هنگام تغییر
+  if (currentEquipment) {
+    saveStateToLocalStorage();
+  }
+});
+
+/* ===== شروع بازرسی ===== */
+startBtn.addEventListener('click', async ()=>{
+ const pid = toEnglishDigits(elId.value.trim());
+  const pname = elName.textContent || '---';
+ 
+  elName.textContent = operators[pid] || elName.textContent || '---';
+ if(!pid || pname==='---'){ alert('شماره پرسنلی معتبر وارد کنید'); return false; }
+  
+  // بررسی دسترسی موقعیت‌یابی
+  const hasPermission = await checkGeolocationPermission();
+  if (!hasPermission) {
+    alert('برای استفاده از این برنامه، باید دسترسی موقعیت‌یابی (GPS) را فعال کنید.');
+    const locationSuccess = await getLocation();
+    if (!locationSuccess) {
+      return false;
+    }
+  }
+  
+  currentEquipment = selEquip.value;
+  currentComponents = equipmentData[currentEquipment] || [];
+  if(!currentComponents.length){ alert('برای این تجهیز جزء تعریف نشده است'); return; }
+
+  ensureArrayLen(currentComponents.length);
+  itemMeta = {};
+  fillComponentsDropdownPage2();
+  loadComponent(0);
+  page1.style.display='none';
+  page2.style.display='block';
+  
+  // شروع نظارت بر موقعیت‌یابی
+  startGeolocationMonitoring();
+  
+  // ذخیره وضعیت
+  saveStateToLocalStorage();
+  
+  // رفتن کامل به بالا
+  setTimeout(()=>{ window.scrollTo({ top: 0, behavior: 'smooth' }); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }, 60);
+});
+
+/* ===== پر کردن اجزا صفحه دوم ===== */
+function fillComponentsDropdownPage2(){
+  selCompPage2.innerHTML='';
+  currentComponents.forEach((c,i)=>{ const opt=document.createElement('option'); opt.value=String(i); opt.textContent=c; selCompPage2.appendChild(opt); });
+  selCompPage2.onchange = ()=>{ saveCurrentComponentData(); loadComponent(parseInt(selCompPage2.value,10)); };
+}
+
+/* ===== لود جزء و آیتم‌ها ===== */
+function loadComponent(index){
+  if(index<0||index>=currentComponents.length) return;
+  currentIndex = index;
+  headerEquipment.textContent = currentEquipment;
+  headerComponent.textContent = currentComponents[index];
+  selCompPage2.value = String(index);
+  componentTitle.textContent = `${currentEquipment} — ${currentComponents[index]}`;
+  container.innerHTML = '';
+  const compName = currentComponents[index];
+  if(!itemMeta[compName]) itemMeta[compName] = {};
+  const items = checklistItems[compName] || [];
+  const saved = allComponentsData[index];
+
+  items.forEach((it,i)=>{
+    const wrap = document.createElement('div'); 
+    wrap.className='check-item'; 
+    wrap.dataset.idx = String(i);
+    
+    // نمایش عنوان آیتم و گزینه‌های Ok/NotOk با قابلیت toggle
+    wrap.innerHTML = `
+      <div style="font-size:17px;font-weight:800">${it}</div>
+      <div class="ci-opts">
+        <label for="ok_${index}_${i}" class="ok-opt">✅ Ok</label>
+        <label for="notok_${index}_${i}" class="notok-opt">❌ NotOk</label>
+      </div>
+      <input class="note" placeholder="توضیحات (اختیاری)">
+    `;
+    container.appendChild(wrap);
+
+    const okLabel = wrap.querySelector('.ok-opt');
+    const notOkLabel = wrap.querySelector('.notok-opt');
+    const note = wrap.querySelector('.note');
+
+    // مقداردهی اولیه از داده‌های ذخیره شده
+    let currentStatus = '';
+    if(saved && saved.checklist && saved.checklist[i]){
+      const s = saved.checklist[i];
+      currentStatus = s.status || '';
+      if(s.note) note.value = s.note;
+      
+      // تنظیم وضعیت اولیه
+      if(currentStatus === 'ok') {
+        okLabel.classList.add('selected');
+      } else if(currentStatus === 'notok') {
+        notOkLabel.classList.add('selected');
+      }
+    }
+
+    // تابع برای مدیریت انتخاب/عدم انتخاب
+    function toggleSelection(selectedValue, selectedLabel, otherLabel) {
+      if(currentStatus === selectedValue) {
+        // اگر قبلاً انتخاب شده بود، آن را بردار
+        selectedLabel.classList.remove('selected');
+        currentStatus = '';
+      } else {
+        // انتخاب جدید
+        selectedLabel.classList.add('selected');
+        otherLabel.classList.remove('selected');
+        currentStatus = selectedValue;
+      }
+      
+      // ثبت زمان و لوکیشن از itemMeta
+      const timestamp = nowFa();
+      if(!itemMeta[compName]) itemMeta[compName] = {};
+      itemMeta[compName][it] = { 
+        status: currentStatus, 
+        timestamp: currentStatus ? timestamp : '', 
+        location: currentStatus ? currentLocation : null 
+      };
+      
+      // ذخیره وضعیت هنگام تغییر
+      saveCurrentComponentData();
+      saveStateToLocalStorage();
+    }
+
+    // اضافه کردن event listener برای toggle
+    okLabel.addEventListener('click', () => {
+      toggleSelection('ok', okLabel, notOkLabel);
+    });
+
+    notOkLabel.addEventListener('click', () => {
+      toggleSelection('notok', notOkLabel, okLabel);
+    });
+    
+    // ذخیره وضعیت هنگام تغییر توضیحات
+    note.addEventListener('input', () => {
+      saveCurrentComponentData();
+      saveStateToLocalStorage();
+    });
+  });
+
+  prevBtn.disabled = currentIndex===0;
+  nextBtn.disabled = currentIndex===currentComponents.length-1;
+
+  // اسکرول: صفحه و کانتینر به بالاترین نقطه می‌روند و اولین آیتم فوکوس می‌شود
+  setTimeout(()=>{
+    try{
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      container.scrollTop = 0;
+      const first = container.querySelector('.check-item');
+      if(first) first.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }catch(e){ console.warn(e); }
+  }, 60);
+}
+
+/* ===== ذخیره جزء فعلی ===== */
+function saveCurrentComponentData(){
+  const compName = currentComponents[currentIndex];
+  const items = checklistItems[compName] || [];
+  const rows = container.querySelectorAll('.check-item');
+  const checklist = [];
+  rows.forEach((w,i)=>{
+    const title = items[i];
+    const note = w.querySelector('.note').value || '';
+    const okLabel = w.querySelector('.ok-opt');
+    const notOkLabel = w.querySelector('.notok-opt');
+    
+    let status = '';
+    if(okLabel.classList.contains('selected')) {
+      status = 'ok';
+    } else if(notOkLabel.classList.contains('selected')) {
+      status = 'notok';
+    }
+    
+    const meta = (itemMeta[compName] && itemMeta[compName][title]) ? itemMeta[compName][title] : {};
+    checklist.push({ 
+      item: title, 
+      status: status, 
+      note, 
+      timestamp: status ? (meta.timestamp || '') : '', 
+      location: status ? (meta.location ?? null) : null 
+    });
+  });
+  allComponentsData[currentIndex] = { component: compName, checklist };
+}
+
+/* ===== ناوبری Prev/Next ===== */
+nextBtn.addEventListener('click', ()=>{ 
+  if (!gpsAccessGranted) {
+    alert('برای ادامه کار، دسترسی به موقعیت‌یابی ضروری است.');
+    getLocation();
+    return;
+  }
+  
+  saveCurrentComponentData(); 
+  saveStateToLocalStorage();
+  if(currentIndex < currentComponents.length-1) loadComponent(currentIndex+1); 
+  else { window.scrollTo({top:0,behavior:'smooth'}); } 
+});
+
+prevBtn.addEventListener('click', ()=>{ 
+  if (!gpsAccessGranted) {
+    alert('برای ادامه کار، دسترسی به موقعیت‌یابی ضروری است.');
+    getLocation();
+    return;
+  }
+  
+  saveCurrentComponentData(); 
+  saveStateToLocalStorage();
+  if(currentIndex > 0) loadComponent(currentIndex-1); 
+  else { window.scrollTo({top:0,behavior:'smooth'}); } 
+});
+
+/* ===== فرم جدید: ذخیره و بازگشت به صفحه اول ===== */
+newFormBtn.addEventListener('click', async ()=>{
+  if (!gpsAccessGranted) {
+    alert('برای ذخیره فرم، دسترسی به موقعیت‌یابی ضروری است.');
+    getLocation();
+    return;
+  }
+  
+  saveCurrentComponentData();
+  const ok = await doDownloadCurrentForm();
+  if(ok){
+    // پاکسازی داخلی و بازگشت
+    currentEquipment = "";
+    currentComponents = [];
+    currentIndex = 0;
+    allComponentsData = [];
+    itemMeta = {};
+    currentLocation = null;
+    page2.style.display = 'none';
+    page1.style.display = 'block';
+    
+    // پاک کردن وضعیت ذخیره شده
+    clearStateFromLocalStorage();
+    
+    // توقف نظارت بر موقعیت‌یابی
+    if (geolocationWatchId) {
+      navigator.geolocation.clearWatch(geolocationWatchId);
+      geolocationWatchId = null;
+    }
+    
+    setTimeout(()=>{ window.scrollTo({ top: 0, behavior: 'smooth' }); }, 50);
+  }
+});
+
+/* ===== ذخیره نهایی ===== */
+saveBtn.addEventListener('click', async ()=>{
+  if (!gpsAccessGranted) {
+    alert('برای ذخیره نهایی، دسترسی به موقعیت‌یابی ضروری است.');
+    getLocation();
+    return;
+  }
+  
+  saveCurrentComponentData();
+  const ok = await doDownloadCurrentForm();
+  if(ok) {
+    alert('فایل ذخیره شد (پوشه دانلود دستگاه).');
+    // پاک کردن وضعیت ذخیره شده پس از ذخیره نهایی
+    clearStateFromLocalStorage();
+    // بازگشت به صفحه اول
+    currentEquipment = "";
+    currentComponents = [];
+    currentIndex = 0;
+    allComponentsData = [];
+    itemMeta = {};
+    currentLocation = null;
+    page2.style.display = 'none';
+    page1.style.display = 'block';
+    
+    // توقف نظارت بر موقعیت‌یابی
+    if (geolocationWatchId) {
+      navigator.geolocation.clearWatch(geolocationWatchId);
+      geolocationWatchId = null;
+    }
+  }
+});
+
+/* ===== دانلود/ذخیره فایل ===== */
+async function doDownloadCurrentForm(){
+  const pid = toEnglishDigits(elId.value.trim());
+  const pname = elName.textContent || '---';
+  if(!pid || pname==='---'){ alert('شماره پرسنلی معتبر وارد کنید'); return false; }
+  if(!currentEquipment){ alert('تجهیز انتخاب نشده'); return false; }
+  // ساخت payload
+  const payload = { 
+    personnelId: pid, 
+    personnelName: pname, 
+    equipment: currentEquipment, 
+    savedAt: nowFa(), 
+    location: currentLocation,
+    components: allComponentsData 
+  };
+  try{
+    const blob = new Blob([JSON.stringify(payload,null,2)], { type: 'application/json' });
+    const fileNameWithoutExt = currentEquipment;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileNameWithoutExt;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    return true;
+  }catch(err){
+    console.error('خطا در ذخیره فایل:', err);
+    alert('خطا در ذخیره فایل رخ داد.');
+    return false;
+  }
+}
+
+/* ===== مدیریت وضعیت ذخیره شده ===== */
+function restoreSavedState(state) {
+  // بازیابی وضعیت ذخیره شده
+  elId.value = state.personnelId;
+  elName.textContent = operators[toEnglishDigits(state.personnelId)] || '---';
+  selEquip.value = state.equipment;
+  currentEquipment = state.equipment;
+  currentComponents = equipmentData[currentEquipment] || [];
+  currentIndex = state.currentIndex || 0;
+  allComponentsData = state.allComponentsData || [];
+  itemMeta = state.itemMeta || {};
+
+  // پر کردن dropdown اجزا
+  fillComponentsDropdownPage2();
+  
+  // شروع نظارت بر موقعیت‌یابی
+  startGeolocationMonitoring();
+  
+  // رفتن به صفحه دوم
+  page1.style.display = 'none';
+  page2.style.display = 'block';
+  
+  // لود جزء فعلی
+  loadComponent(currentIndex);
+}
+
+function startNewForm() {
+  // پاک کردن وضعیت ذخیره شده
+  clearStateFromLocalStorage();
+  
+  // ریست کردن فرم
+  elId.value = '';
+  elName.textContent = '---';
+  selEquip.selectedIndex = 0;
+  currentEquipment = "";
+  currentComponents = [];
+  currentIndex = 0;
+  allComponentsData = [];
+  itemMeta = {};
+  currentLocation = null;
+  
+  // شروع دریافت موقعیت جغرافیایی
+  getLocation();
+  
+  // مخفی کردن مودال
+  restoreModal.style.display = 'none';
+}
+
+// بررسی وضعیت ذخیره شده هنگام لود صفحه
+window.addEventListener('load', function() {
+  const savedState = checkForSavedState();
+  if (savedState) {
+    // نمایش مودال برای تصمیم‌گیری کاربر
+    restoreModal.style.display = 'flex';
+    
+    // تنظیم event listener برای دکمه‌های مودال
+    restoreContinueBtn.addEventListener('click', function() {
+      restoreSavedState(savedState);
+      restoreModal.style.display = 'none';
+    });
+    
+    restoreNewBtn.addEventListener('click', function() {
+      startNewForm();
+      restoreModal.style.display = 'none';
+    });
+  } else {
+    // اگر وضعیت ذخیره شده‌ای وجود ندارد، موقعیت‌یابی را شروع کن
+    getLocation();
+  }
+});
+
+// ذخیره وضعیت هنگام بسته شدن یا رفرش صفحه
+window.addEventListener('beforeunload', function() {
+  if (currentEquipment) {
+    saveStateToLocalStorage();
+  }
+  if (geolocationWatchId) {
+    navigator.geolocation.clearWatch(geolocationWatchId);
+  }
+});
+
+// ذخیره وضعیت هنگام تغییر visibility صفحه
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'hidden' && currentEquipment) {
+    saveStateToLocalStorage();
+  }
+});
+
+// نظارت بر تغییرات وضعیت مجوز موقعیت‌یابی
+if (navigator.permissions) {
+  navigator.permissions.query({ name: 'geolocation' }).then(function(permissionStatus) {
+    permissionStatus.onchange = function() {
+      if (this.state === 'granted') {
+        enableFormActions();
+        startGeolocationMonitoring();
+      } else {
+        disableFormActions();
+        locationStatus.textContent = "موقعیت‌یابی: دسترسی لغو شد";
+      }
+    };
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "فرم بازرسی - Inspector",
+  "short_name": "بازرسی",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f3f6fb",
+  "theme_color": "#0a7bdc",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon-518.png",
+      "sizes": "518x518",
+      "type": "image/png"
+    }
+  ]
+}
