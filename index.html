@@ -425,10 +425,6 @@
             <input class="type-input" type="radio" name="idlerType" id="typeVertical" value="آیدلر ورتیکال">
             <label class="type-label" for="typeVertical">آیدلر ورتیکال</label>
           </div>
-          <div class="type-item">
-            <input class="type-input" type="radio" name="idlerType" id="typeReturnVertical" value="ریترن ورتیکال">
-            <label class="type-label" for="typeReturnVertical">ریترن ورتیکال</label>
-          </div>
         </div>
 
         <!-- شماره آیدلر -->
@@ -512,11 +508,8 @@
   <script>
     // ===== داده‌های نمونه برنامه اصلی =====
     const operators = {
-      "12026": "افشار رابري حسن", "12077": "خليفهّ مصطفي", "12144": "شيباني تذرجي رضا",
-      "12227": "مرادي پور شهرام", "12536": "بلوردي جواد", "12959": "دره گرائي روح الله",
-      "12963": "نصرت آبادي سجاد", "12997": "صادقي گوغري ابراهيم", "13079": "قرايي احمد",
-      "13104": "نوروزي كورگاهي اميررضا", "13202": "نژادحيدري محمد", "13231": "حافظي قهستاني اميرحسين",
-      "14126": "شاهبداغي ابوالقاسم","12449": "اکبر پرواسی","12449": "اکبر پرواسی","13075": "محمد سعید فضلعلی","13085": "سید محمد پور فریدونی","13228": "امیر محمد حلوایی","13263": "امین حیدری"
+     "12026": "افشار رابري حسن", "12077": "خليفهّ مصطفي", "12144": "شيباني تذرجي رضا", "12227": "مرادي پور شهرام", "12536": "بلوردي جواد", "12959": "رادمهر روح الله", "12963": "نصرت آبادي سجاد", "12997": "صادقي گوغري ابراهيم", "13079": "قرايي احمد", "13104": "نوروزي كورگاهي اميررضا", "13202": "نژادحيدري محمد", "13231": "حافظي قهستاني اميرحسين", "14126": "شاهبداغي ابوالقاسم", "14304": "قنبری مسعود", "13348": "اسماعیلی دانیال", "12964": "هاشمی رضا", "12965": "حافظی مجتبی", "12961": "ستوده امیر حسین", "13072": "مقدمی رامین", "13097": "رحیمی آرمان", "13059": "هاشمی سید محسن", "13209": "امیری امیر محمد", "13236": "چناری امیر حسین", "12563": "نصرالله پور محسن", "12500": "علی مردانی مهدی", "12946": "رمضانی عباسعلی", "12166": "عباسی علیرضا", "13321": "پورشاه آبادی فرهاد", "12691": "رنجبر محمد", "13374": "فیروز آبادی معیین", "12449": "پروراسی اکبر", "12982": "جلالی علیرضا", "12929": "مطهری مصطفی", "13075": "فضلعلی سعید", "13085": "پورفریدونی محمد", "13228": "حلویی امیرمحمد", "13263": "حیدری امین", "12631": "کریمی محمدعلی", "12006": "محبوبی سعید", "12148": "صادقی مسلم", "12688": "غلامرضا جماشی", "13112": "حسن‌زاده مجتبی", "13227": "خواجویی امیرمحمد", "13347": "غیاثی حمیدرضا", "12916": "عباسی رضا", "13013": "افشار مهدی", "12958": "سالاری سخاوت", "13081": "نژادصالحی امیرحسن", "13111": "اسماعیل‌پور محمد", "13219": "نژادکورکی مهدی", "14474": "گلزاری رضا", "12100": "رضوانی مسعود", "12078": "خلفیه پرویز", "12188": "قاسمی محسن", "13346": "شول مصطفی", "13093": "زیدآبادی محمد", "12951": "پورفریدونی جواد", "13349": "زیدآبادی محمد صادق"
+
     };
 
 
@@ -554,12 +547,12 @@
       "G7-210": ["درام تیل:", "شوت ورودی:", "نوار:", "غلطک ها:", "درام بندینگ تیل:", "درام بندینگ هد:", "درام تنشن:", "کانترویت:", "شوت خروجی:","درام اسنپ هد:", "درام هد:", "موتور:", "کوپلینگ موتور:", "گیربکس:", "5S:", "ثبت آیدلر", "ارتعاش‌سنجی"],
       "G7-211": ["درام تیل:", "شوت ورودی:", "نوار:", "غلطک ها:", "درام بندینگ تیل:", "درام بندینگ هد:", "درام تنشن:", "کانترویت:", "شوت خروجی:","درام اسنپ هد:", "درام هد:", "موتور:", "کوپلینگ موتور:", "گیربکس:", "5S:", "ثبت آیدلر", "ارتعاش‌سنجی"],
       "G7-212": ["درام تیل:", "شوت ورودی:", "نوار:", "غلطک ها:", "درام بندینگ تیل:", "درام بندینگ هد:", "درام تنشن:", "کانترویت:", "شوت خروجی:","درام اسنپ هد:", "درام هد:", "موتور:", "کوپلینگ موتور:", "گیربکس:", "5S:", "ثبت آیدلر", "ارتعاش‌سنجی"],
-      "G7-213": ["درام تیل:", "شوت ورودی:", "نوار:", "غلطک ها:", "درام بندینگ تیل:", "درام بندینگ هد:", "درام تنشن:", "کانترویت:", "شوت خروجی:","درام اسنپ هد:", "درام هd:", "موتور:", "کوپلینگ موتور:", "گیربکس:", "5S:", "ثبت آیدلر", "ارتعاش‌سنجی"],
+      "G7-213": ["درام تیل:", "شوت ورودی:", "نوار:", "غلطک ها:", "درام بندینگ تیل:", "درام بندینگ هد:", "درام تنشن:", "کانترویت:", "شوت خروجی:","درام اسنپ هد:", "درام هد:", "موتور:", "کوپلینگ موتور:", "گیربکس:", "5S:", "ثبت آیدلر", "ارتعاش‌سنجی"],
       "G7-214": ["درام تیل:", "شوت ورودی:", "نوار:", "غلطک ها:", "درام بندینگ تیل:", "درام بندینگ هد:", "درام تنشن:", "کانترویت:", "شوت خروجی:","درام اسنپ هد:", "درام هد:", "موتور:", "کوپلینگ موتور:", "گیربکس:", "5S:", "ثبت آیدلر", "ارتعاش‌سنجی"],
       "G7-215": ["درام تیل:", "شوت ورودی:", "نوار:", "غلطک ها:", "درام بندینگ تیل:", "درام بندینگ هد:", "درام تنشن:", "کانترویت:", "شوت خروجی:","درام اسنپ هد:", "درام هد:", "موتور:", "کوپلینگ موتور:", "گیربکس:", "5S:", "ثبت آیدلر", "ارتعاش‌سنجی"],
-      "G7-216": ["درام تیل:", "شوت ورودی:", "نوار:", "غلطک ها:", "درام بندینگ تیل:", "درام بندینگ هد:", "درام تنشن:", "کانترویت:", "شوت خروجی:","درام اسنپ هd:", "درام هد:", "موتور:", "کوپلینگ موتور:", "گیربکس:", "5S:", "ثبت آیدلر", "ارتعاش‌سنجی"],
+      "G7-216": ["درام تیل:", "شوت ورودی:", "نوار:", "غلطک ها:", "درام بندینگ تیل:", "درام بندینگ هد:", "درام تنشن:", "کانترویت:", "شوت خروجی:","درام اسنپ هد:", "درام هد:", "موتور:", "کوپلینگ موتور:", "گیربکس:", "5S:", "ثبت آیدلر", "ارتعاش‌سنجی"],
       "G7-220A": ["درام تیل:", "شوت ورودی:", "نوار:", "غلطک ها:", "درام بندینگ تیل:", "درام بندینگ هد:", "درام تنشن:", "کانترویت:", "شوت خروجی:","درام اسنپ هد:", "درام هد:", "موتور:", "کوپلینگ موتور:", "گیربکس:", "5S:", "ثبت آیدلر", "ارتعاش‌سنجی"],
-      "G7-220B": ["درام تیل:", "شوت ورودی:", "نوار:", "غلطک ها:", "درام بندینگ تیل:", "درام بندینگ هd:", "درام تنشن:", "کانترویت:", "شوت خروجی:","درام اسنپ هد:", "درام هد:", "موتور:", "کوپلینگ موتور:", "گیربکس:", "5S:", "ثبت آیدلر", "ارتعاش‌سنجی"],
+      "G7-220B": ["درام تیل:", "شوت ورودی:", "نوار:", "غلطک ها:", "درام بندینگ تیل:", "درام بندینگ هد:", "درام تنشن:", "کانترویت:", "شوت خروجی:","درام اسنپ هد:", "درام هد:", "موتور:", "کوپلینگ موتور:", "گیربکس:", "5S:", "ثبت آیدلر", "ارتعاش‌سنجی"],
     };
 
     const checklistItems = {
@@ -657,31 +650,16 @@
           <!-- بخش موتور -->
           <div class="vibration-part">
             <div class="part-title">موتور</div>
-            
-            <!-- ردیف Lose -->
             <div class="position-labels">
-              <div class="position-label">Lose افقی</div>
-              <div class="position-label">Lose عمودی</div>
-              <div class="position-label">Lose محوری</div>
+              <div class="position-label">افقی</div>
+              <div class="position-label">عمودی</div>
+              <div class="position-label">محوری</div>
             </div>
             <div class="position-inputs">
-              <input type="number" class="vibration-input" id="motor_lose_horizontal" placeholder="---" step="0.01" min="0">
-              <input type="number" class="vibration-input" id="motor_lose_vertical" placeholder="---" step="0.01" min="0">
-              <input type="number" class="vibration-input" id="motor_lose_axial" placeholder="---" step="0.01" min="0">
+              <input type="number" class="vibration-input" id="motor_horizontal" placeholder="---" step="0.01" min="0">
+              <input type="number" class="vibration-input" id="motor_vertical" placeholder="---" step="0.01" min="0">
+              <input type="number" class="vibration-input" id="motor_axial" placeholder="---" step="0.01" min="0">
             </div>
-            
-            <!-- ردیف Fixe -->
-            <div class="position-labels">
-              <div class="position-label">Fixe افقی</div>
-              <div class="position-label">Fixe عمودی</div>
-              <div class="position-label">Fixe محوری</div>
-            </div>
-            <div class="position-inputs">
-              <input type="number" class="vibration-input" id="motor_fixe_horizontal" placeholder="---" step="0.01" min="0">
-              <input type="number" class="vibration-input" id="motor_fixe_vertical" placeholder="---" step="0.01" min="0">
-              <input type="number" class="vibration-input" id="motor_fixe_axial" placeholder="---" step="0.01" min="0">
-            </div>
-            
             <div class="unit">mm/s</div>
             
             <div class="temp-section">
@@ -694,31 +672,16 @@
           <!-- بخش گیربکس -->
           <div class="vibration-part">
             <div class="part-title">گیربکس</div>
-            
-            <!-- ردیف Lose -->
             <div class="position-labels">
-              <div class="position-label">Lose افقی</div>
-              <div class="position-label">Lose عمودی</div>
-              <div class="position-label">Lose محوری</div>
+              <div class="position-label">افقی</div>
+              <div class="position-label">عمودی</div>
+              <div class="position-label">محوری</div>
             </div>
             <div class="position-inputs">
-              <input type="number" class="vibration-input" id="gearbox_lose_horizontal" placeholder="---" step="0.01" min="0">
-              <input type="number" class="vibration-input" id="gearbox_lose_vertical" placeholder="---" step="0.01" min="0">
-              <input type="number" class="vibration-input" id="gearbox_lose_axial" placeholder="---" step="0.01" min="0">
+              <input type="number" class="vibration-input" id="gearbox_horizontal" placeholder="---" step="0.01" min="0">
+              <input type="number" class="vibration-input" id="gearbox_vertical" placeholder="---" step="0.01" min="0">
+              <input type="number" class="vibration-input" id="gearbox_axial" placeholder="---" step="0.01" min="0">
             </div>
-            
-            <!-- ردیف Fixe -->
-            <div class="position-labels">
-              <div class="position-label">Fixe افقی</div>
-              <div class="position-label">Fixe عمودی</div>
-              <div class="position-label">Fixe محوری</div>
-            </div>
-            <div class="position-inputs">
-              <input type="number" class="vibration-input" id="gearbox_fixe_horizontal" placeholder="---" step="0.01" min="0">
-              <input type="number" class="vibration-input" id="gearbox_fixe_vertical" placeholder="---" step="0.01" min="0">
-              <input type="number" class="vibration-input" id="gearbox_fixe_axial" placeholder="---" step="0.01" min="0">
-            </div>
-            
             <div class="unit">mm/s</div>
             
             <div class="temp-section">
@@ -737,41 +700,19 @@
       if (saved && saved.vibrationData) {
         const data = saved.vibrationData;
         
-        // بارگذاری داده‌های موتور - Lose
-        if (data.motor && data.motor.lose) {
-          document.getElementById('motor_lose_horizontal').value = data.motor.lose.horizontal || '';
-          document.getElementById('motor_lose_vertical').value = data.motor.lose.vertical || '';
-          document.getElementById('motor_lose_axial').value = data.motor.lose.axial || '';
-        }
-        
-        // بارگذاری داده‌های موتور - Fixe
-        if (data.motor && data.motor.fixe) {
-          document.getElementById('motor_fixe_horizontal').value = data.motor.fixe.horizontal || '';
-          document.getElementById('motor_fixe_vertical').value = data.motor.fixe.vertical || '';
-          document.getElementById('motor_fixe_axial').value = data.motor.fixe.axial || '';
-        }
-        
-        // بارگذاری دمای موتور
+        // بارگذاری داده‌های موتور
         if (data.motor) {
+          document.getElementById('motor_horizontal').value = data.motor.horizontal || '';
+          document.getElementById('motor_vertical').value = data.motor.vertical || '';
+          document.getElementById('motor_axial').value = data.motor.axial || '';
           document.getElementById('motor_temp').value = data.motor.temperature || '';
         }
         
-        // بارگذاری داده‌های گیربکس - Lose
-        if (data.gearbox && data.gearbox.lose) {
-          document.getElementById('gearbox_lose_horizontal').value = data.gearbox.lose.horizontal || '';
-          document.getElementById('gearbox_lose_vertical').value = data.gearbox.lose.vertical || '';
-          document.getElementById('gearbox_lose_axial').value = data.gearbox.lose.axial || '';
-        }
-        
-        // بارگذاری داده‌های گیربکس - Fixe
-        if (data.gearbox && data.gearbox.fixe) {
-          document.getElementById('gearbox_fixe_horizontal').value = data.gearbox.fixe.horizontal || '';
-          document.getElementById('gearbox_fixe_vertical').value = data.gearbox.fixe.vertical || '';
-          document.getElementById('gearbox_fixe_axial').value = data.gearbox.fixe.axial || '';
-        }
-        
-        // بارگذاری دمای گیربکس
+        // بارگذاری داده‌های گیربکس
         if (data.gearbox) {
+          document.getElementById('gearbox_horizontal').value = data.gearbox.horizontal || '';
+          document.getElementById('gearbox_vertical').value = data.gearbox.vertical || '';
+          document.getElementById('gearbox_axial').value = data.gearbox.axial || '';
           document.getElementById('gearbox_temp').value = data.gearbox.temperature || '';
         }
       }
@@ -780,29 +721,15 @@
     function saveVibrationData() {
       const vibrationData = {
         motor: {
-          lose: {
-            horizontal: document.getElementById('motor_lose_horizontal').value || null,
-            vertical: document.getElementById('motor_lose_vertical').value || null,
-            axial: document.getElementById('motor_lose_axial').value || null
-          },
-          fixe: {
-            horizontal: document.getElementById('motor_fixe_horizontal').value || null,
-            vertical: document.getElementById('motor_fixe_vertical').value || null,
-            axial: document.getElementById('motor_fixe_axial').value || null
-          },
+          horizontal: document.getElementById('motor_horizontal').value || null,
+          vertical: document.getElementById('motor_vertical').value || null,
+          axial: document.getElementById('motor_axial').value || null,
           temperature: document.getElementById('motor_temp').value || null
         },
         gearbox: {
-          lose: {
-            horizontal: document.getElementById('gearbox_lose_horizontal').value || null,
-            vertical: document.getElementById('gearbox_lose_vertical').value || null,
-            axial: document.getElementById('gearbox_lose_axial').value || null
-          },
-          fixe: {
-            horizontal: document.getElementById('gearbox_fixe_horizontal').value || null,
-            vertical: document.getElementById('gearbox_fixe_vertical').value || null,
-            axial: document.getElementById('gearbox_fixe_axial').value || null
-          },
+          horizontal: document.getElementById('gearbox_horizontal').value || null,
+          vertical: document.getElementById('gearbox_vertical').value || null,
+          axial: document.getElementById('gearbox_axial').value || null,
           temperature: document.getElementById('gearbox_temp').value || null
         },
         unit: "mm/s",
